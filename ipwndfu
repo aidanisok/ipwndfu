@@ -74,9 +74,13 @@ if __name__ == '__main__':
                 checkm8.exploit()
             elif 'CPID:8015' in serial_number:
                 checkm8.exploit()
+            elif 'CPID:7000' in serial_number: # iPhone 6s 
+                checkm8.exploit()
+                print ('A8 chipset is currently unsupported')
+                sys.exit(1)
             else:
                 print 'Found:', serial_number
-                print 'ERROR: This device is not supported.'
+                print 'ERROR: This device is currently not supported.'
                 sys.exit(1)
 
         if opt == '-x':
