@@ -40,8 +40,6 @@ def libusb1_async_ctrl_transfer(device, bmRequestType, bRequest, wValue, wIndex,
   while time.time() - start < timeout / 1000.0:
     pass
 
-  print("USB Error: libusb1_async_ctrl_transfer timed out")
-
   # Prototype of libusb_cancel_transfer is missing from pyusb
   usb.backend.libusb1._lib.libusb_cancel_transfer.argtypes = [ctypes.POINTER(usb.backend.libusb1._libusb_transfer)]
   assert usb.backend.libusb1._lib.libusb_cancel_transfer(transfer_ptr) == 0
